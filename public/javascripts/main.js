@@ -262,6 +262,7 @@ function listFiles(error, contents) {
   }
 }
 function showFiles(filesInRepo){
+   $("#myFilesInRepo").html("")
   for(i in filesInRepo){
     $("#myFilesInRepo").append("<li><span class='titleFile'>"+filesInRepo[i]+"</span></li>")
     $("#myFilesInRepo").on("click", ".titleFile",selectFile);
@@ -276,7 +277,7 @@ function seeFile() {
 
   if (revisorname==undefined){
       titleTicket = $('#'+numTicket).html().split("_")
-      revisorname = titleTicket[1]
+      revisorname = GitUser.toUpperCase()
       $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname},function(data){
         //jsonObj = JSON.parse(data);
         console.log(data)
@@ -665,8 +666,8 @@ $(document).ready(function(){
       $("#linkGerrit")
         .html("The Commit is not in Cinder Repository, see the messages for more information.")
         .prop("href", webpage);
-        $("#idGerrit").html("We can't find the id Commit in this repository");
-        $("#idCommit").html("We can't find the id Commit in this repository"); 
+        $("#idGerrit").html();
+        $("#idCommit").html(); 
         $("#descCommit").html("Not Found"); 
         $("#files").html("Not Found");
         $("#lines").html("Not Found");  
@@ -706,14 +707,18 @@ $(document).ready(function(){
 
       //InfoRelevantJSON=JSON.stringify(InfoRelevant);
       console.log(InfoRelevantJSON);
-
-      myrepo.write('master', numTicket+'_'+revisorname,
-      InfoRelevantJSON,
-       "Updating data"+numTicket, function(err) {
+      if (github.getGist!= undefined){
+     	myrepo = github.getRepo('Gemarodri', 'Prueba');
+    
+        myrepo.write('master', numTicket+'_'+revisorname,
+        InfoRelevantJSON,
+        "Updating data"+numTicket, function(err) {
            console.log (err)
-       });
-      $('#'+numTicket).css('color', 'green');
+        });
+        $('#'+numTicket).css('color', 'green');
+      }
     }
+
     $('textarea').val('');
   });
   //See info file
