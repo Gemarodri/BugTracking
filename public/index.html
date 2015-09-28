@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="Analazing Bugs" content="" />
+    <meta name="Gema Rodriguez" content="" />
+    <title>Get some Information</title>
+    <!-- BOOTSTRAP CORE STYLE -->
+    <link href="zontal-admin/assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONT AWESOME ICONS --> 
+    <link href="zontal-admin/assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- CUSTOM STYLE  -->
+    <link href="zontal-admin/assets/css/style.css" rel="stylesheet" />
+    <script src="zontal-admin/assets/js/jquery-1.11.1.js"></script>
+    <script src="/javascripts/underscore.js"></script>
+    <script src="/javascripts/github.js"></script>
+    <script src="/javascripts/hello.all.min.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <strong>Analizing Tickets</strong>
+            </div>
+        </div>
+    </header> 
+    <!-- HEADER END-->
+    <div class="navbar navbar-inverse set-radius-zero">
+      <div class="container">
+        <div class="navbar-header">
+          <strong>GET SOME INFORMATION</strong>
+        </div>
+      </div>
+    </div>
+    <!-- LOGO HEADER END-->
+    <section class="menu-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="navbar-collapse collapse ">
+                        <ul id="menu-top" class="nav navbar-nav navbar-right">
+                            <li><a id="labelanalyse"class="menu-top-active">analyze</a></li>
+                            <li><a id="labelstatistics">statistics</a></li>
+                            <li><a id="labelmodify">Modify</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!--<div class="content-wrapper"> -->
+      <div class="container">
+      <div class= "container" id="infoAboutTickets">   
+        <div class="row">
+          <div class="col-md-6">
+              <h1 class="page-head-line">Filling The Blanks </h1>
+          </div>
+          <div class="col-md-6">
+              <h1 id ="analize" class="page-head-line">Analizing random ticket <button class="btn btn-default" id="start" style="float: right;">Start</button> </h1>
+              <h1 id="click" class="page-head-line hide">Click in the Ticket <button  style="float: right" class="btn btn-default " id= "moreTickets" >More Tickets</button></h1>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="ticketId">Ticket ID</label>
+            <input type="text" class="form-control" id="idTicket" placeholder="Enter Id Ticket" />
+          </div>
+          <button type="submit" class="btn btn-default " id= "submit" >Get Info</button>
+        </div>
+        <div id="left" class="col-md-2 hide col-leg-6 pre-scrollable" >
+        </div>
+        <div id="center" class="col-md-2 hide col-leg-6 pre-scrollable" >
+        </div>
+        <div id="right" class="col-md-2 hide col-leg-6 pre-scrollable" >
+        </div>
+        <div id="numtickets" class="col-md-6" style="float: right">
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="someInfo"class="alert alert-success">
+                        Click on start button to analyse a random ticket, you can save and see the data.
+                    </div>
+                    <div id="moreInfo" class="alert alert-success hide">
+                        Click over the num of ticket to fill some fields.
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-default " id= "save" >Save info</button>
+            <button class="btn btn-default " id= "see" style="float: right;">See Data</button>
+        </div>
+      </div>
+    <!--</div> -->
+    <!--FORM END-->
+    <!--<div class="content-wrapper"> -->
+      <div class="container" id="mainContainer">
+        <div class="row">
+          <div class="col-md-12">
+              <h1 class="page-head-line">Data Tables</h1>
+          </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+              <!--   Ticket Info -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                    Ticket Info
+                </div>
+                <div id="launchpadInfo" class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                          <thead>
+                            <tr>
+                              <th>WebSite</th>
+                              <th><a id="linkLaunchpad" class= "tblank"><a></th>
+                            </tr>
+                          </thead>
+                            <tbody>
+                                <tr>
+                                  <td>ID</td>
+                                  <td id="id"></td>
+                                </tr>
+                                <tr>
+                                  <td>Title</td>
+                                  <td id="title"></td>
+                                </tr>      
+                                <tr>
+                                  <td>Description</td>
+                                  <td id="description"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                  </div>
+              </div>
+                <!-- End  Ticket Info -->
+                <!-- Gerrit Info -->
+              <div id="infoGerrit" class="panel panel-default">
+                <div class="panel-heading">
+                    Review Info 
+                 <button class="btn btn-default" id="infoReview" style="float: right;">More Info</button>
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                          <thead>
+                            <tr>
+                              <th>Website</th>
+                              <th><a id="linkGerrit" class= "tblank"></a></th>
+                            </tr>
+                          </thead>
+                            <tbody>
+                                <tr>
+                                  <td>ID Gerrit</td>
+                                  <td id="idGerrit"></td>
+                                </tr>
+                                <tr>
+                                  <td>ID Commit</td>
+                                  <td id="idCommit"></td>
+                                </tr>
+                                <tr>
+                                  <td>Commit Description</td>
+
+                                  <td id="descCommit"></td>
+                                </tr>      
+                                <tr>
+                                  <td>Files Involved</td>
+                                  <td id="files"></td>
+                                </tr>
+                                <tr>
+                                  <td>Total Lines Involved</td>
+                                  <td id="lines"></td>
+                                </tr>
+                                <tr>
+                                  <td>Commit Parent</td>
+                                  <td id="parent"></td>
+                                </tr>  
+                            </tbody>
+                        </table>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-md-6 hide" id="infoSaved">
+              <div class="panel panel-success">
+                <div class="panel-heading">
+                    Info saved about the actual ticket 
+                  <button class="btn btn-default" id="close" style="float: right;">Close</button> 
+                </div>
+                <div class="panel-body" id="readfile" >
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 " id="classification">
+              <div class="panel panel-success">
+                <div class="panel-heading">
+                    Classifying into 
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                      <form>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="class" value="Bug" checked> It's a bug &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="class" value="Not_Bug"> It's not a bug &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="radio" name="class" value="Unknown" > Unknown
+                      </form>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-md-6 " id="keywords">
+              <div class="panel panel-success">
+                <div class="panel-heading">
+                    Adding Keywords 
+                </div>
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover">
+                          <tbody>
+                              <tr>
+                                <td>Title</td>
+                                <td id="keyTitle">
+                                  <textarea name="title" rows="1" cols="50" placeholder="Keywords in the Title"></textarea>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Ticket Description</td>
+                                <td id="keyDescription">
+                                  <textarea name="description" rows="1" cols="50" placeholder="Keywords in the Description"></textarea>
+                                </td>
+                              </tr>      
+                              <tr>
+                                <td>Commit Description</td>
+                                <td id="keyCommit">
+                                  <textarea name="commit" rows="1" cols="50" placeholder="Keywords in the Commit"></textarea>
+                                </td>
+                              </tr>
+                          </tbody>
+                        </table>
+                    </div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-md-6 " id="comments">
+              <div class="panel panel-success">
+                <div class="panel-heading ">
+                    Comments
+                </div>
+                <div class="panel-body">
+                    <div>
+                        <textarea name="textarea" rows="1" cols="65" placeholder="Write your comments here"></textarea>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 " id="revisor">
+              <div class="panel panel-success">
+                <div class="panel-heading ">
+                    Revisor
+                </div>
+                <div class="panel-body float:right">
+                    <div>
+                        <textarea name="revision" rows="1" cols="65" placeholder="Write revisor's name here"></textarea>
+                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div id="sourceCode" class="container hide">
+        <div class="row">
+          <div class="col-md-12">
+            <h1 class="page-head-line">Source Code <button class="btn btn-default" id="goBack" style="float: right;">Go Back</button> 
+            </h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">Source Code in Parent Commit</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">Source Code in Actual Commit</div>
+            </div>
+          </div>
+          <div id="code" class="row"> </div>
+        </div>
+      </div>
+      <div id="repoform"/></div>
+      <!--</div> -->
+      <!-- CONTENT-WRAPPER SECTION END-->
+      <!--CONTENT OF statistics-->
+      <div class="container hide" id="statisticsContainer">
+        <div class="row">
+          <div class="col-md-12">
+              <h1 class="page-head-line">Data Tables</h1>
+          </div>
+        </div>
+        <div class="row">
+        <div class="col-md-12" id="revisors_name">
+        </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <!--    Context Classes  -->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                  First Classification
+                  <button class="btn btn-default" id="draw" style="float: right;">Draw</button>
+              </div>
+                        
+              <div class="panel-body">
+                  <div class="table-responsive">
+                      <table class="table" id="datatable">
+                          <thead>
+                              <tr>
+                                  <th></th>
+                                  <th>Num Tickets</th>
+                                  <th>Percentage (%)</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              <tr class="success">
+                                  <td>Bug</td>
+                                  <td name="numB" id="numB"></td>
+                                  <td id="percentageB"></td>
+                              </tr>
+                              <tr class="danger">
+                                  <td>Not Bug</td>
+                                  <td id="numNB"></td>
+                                  <td id="percentageNB"></td>
+                              </tr>
+                              <tr class="warning">
+                                  <td>Unknown</td>
+                                  <td id="numU"></td>
+                                  <td id="percentageU"></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+            </div>
+    
+          </div>
+          <div class="col-md-6" id="firstclassification">
+                
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--END CONTENT OF statistics-->
+    <!--CONTENT OF Modify-->
+    <div class="container hide" id="modifyContainer">
+      <div class="row">
+        <div class="col-md-12">
+            <h1 class="page-head-line">Modify Files from Repository </h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-3">
+           <div class="panel panel-default">
+              <div class="panel-heading">
+                  Actual Files In Repo
+              </div>
+              <div class="panel-body" id="myFilesInRepo">
+              </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="panel panel-default">
+              <div class="panel-heading" id="filename">
+                  Data Saved
+              </div>
+              <div class="panel-body">
+                <form id="changedata">
+                  <div class="form-group col-md-6">
+                    <label >Id Ticket</label>
+                    <input class="form-control" id="idTicketSaved" />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label >Id Gerrit</label>
+                    <input class="form-control" id="idGerritSaved" />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label >Lines Inserted</label>
+                    <input class="form-control" id="insertedLines" />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label >Lines Deleted</label>
+                    <input class="form-control" id="deletedLines" />
+                  </div>
+                  <div class="form-group col-md-6">
+                    <label >Revisor</label>
+                    <input class="form-control" id="revisorSaved" readonly="readonly"/>
+                  </div>
+                  <label >ID Commit</label>
+                    <input class="form-control" id="idCommitSaved" size="50" />
+                  <hr />
+                  <label >ID Commit Parent</label>
+                    <input class="form-control" id="commitParentSaved" size="50" />
+                  <hr />
+                  <label>Launchpad</label>
+                    <input class="form-control" id="launchpadSaved" size="50" />
+                  <hr />
+                  <label >Gerrit</label>
+                    <input class="form-control" id="gerritSaved" size="50" />
+                  <hr />
+                  <label >Files</label>
+                  <textarea class="form-control" id="filesSaved" rows="3" cols="65"></textarea>
+                  <hr />
+                  <label >Keyword Title</label>
+                  <textarea class="form-control" id="kwdTitle" rows="3" cols="65"></textarea>
+                  <hr />
+                  <label >Keyword Description</label>
+                  <textarea class="form-control" id="kwdDescription" rows="3" cols="65"></textarea>
+                  <hr />
+                  <label >Keyword Commit</label>
+                  <textarea class="form-control" id="kwdCommit" rows="3" cols="65"></textarea>
+                  <hr />
+                  <label >Comments</label>
+                  <textarea class="form-control" id="comentsSaved" rows="3" cols="65"></textarea>
+                  <div class="radio">
+                    <label>
+                      <input type="radio" name="newclass" id="Bug" value="Bug"/>
+                      Bug
+                    </label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                      <input type="radio" name="newclass" id="Not_Bug" value="Not_Bug" />
+                      Not Bug
+                    </label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <label>
+                      <input type="radio" name="newclass" id="Unknown" value="Unknown" />
+                      Unknown
+                    </label>
+                  </div>
+                  <button type='button' id='write'>Write File!</button>
+                </form>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="container" id="datas">
+
+    </div>
+    <!--END CONTENT OF Modify-->
+    <footer>
+      <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                &copy; 2015 LibreSoft| By : Gema Rodriguez 
+            </div>
+        </div>
+      </div>
+    </footer>
+  
+    <!-- FOOTER SECTION END-->
+    <!-- JAVASCRIPT AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
+    <!-- Highcharts SCRIPTS 
+    <script src="http://code.highcharts.com/highcharts.js"></script>-->
+     <script type='text/javascript', src='/javascripts/highcharts.js'></script> 
+    <script type='text/javascript', src='/javascripts/exporting.js'></script>
+    <!--BOOTSTRAP SCRIPTS-->
+    <script src="zontal-admin/assets/js/bootstrap.js"></script>
+    <script type='text/javascript', src='/javascripts/main.js'></script> 
+</body>
+</html> 
