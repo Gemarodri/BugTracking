@@ -1,0 +1,20 @@
+doctype
+html
+  head
+    title #{title} - My Site
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.css')
+    script(src='http://code.jquery.com/jquery-1.6.2.min.js')
+    script(src='http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js')
+    script( type='text/javascript',src='/javascripts/main.js')
+    
+  body
+    header
+      h1 Get INFORMATION
+    .container
+      .main-content
+        block content 
+      .sidebar
+        block sidebar
+    footer
+      p Running on node with Express, Jade and Stylus

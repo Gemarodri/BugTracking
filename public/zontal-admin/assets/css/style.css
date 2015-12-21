@@ -217,19 +217,39 @@ footer {
 .bk-clr-one {
     background-color: #B9B739;
 }
-
+div.bk-clr-one:hover{
+    background-color: #7f7d27;
+}
 .bk-clr-two {
     background-color: #F94C4C;
 }
-
+div.bk-clr-two:hover{
+    background-color: #f00808;
+}
 .bk-clr-three {
     background-color: #119c7e;
 }
-
+div.bk-clr-three:hover{
+    background-color: #095746;
+}
 .bk-clr-four {
     background-color: #b739b9;
 }
-
+div.bk-clr-four:hover{
+    background-color: #7d277f;
+}
+.bk-clr-five {
+    background-color: #397bb9;
+}
+div.bk-clr-five:hover{
+    background-color: #27547f;
+}
+.bk-clr-six {
+    background-color: #5accca;
+}
+div.bk-clr-six:hover{
+    background-color: #33a6a4;
+}
 .dashboard-div-icon {
     height: 75px;
     width: 75px;

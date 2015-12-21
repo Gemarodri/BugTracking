@@ -1,6 +1,29 @@
-/* FRONT END*/
+/*## Copyright (C) 2015 Libresoft
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##
+## Check some properties of a SCM database.
+##
+## Authors:
+##   Gema Rodriguez <gerope@libresoft.es>
+##*/
 
+
+/* FRONT END*/
 /*VARIABLES*/
+var OpenStack= ''
 var numTicket;
 var numGerrit;
 var webpage;
@@ -11,6 +34,7 @@ var idCommit;
 var commitParent;
 var descCommit;
 var files=[];
+var developers=[];
 var linesInserted=0;
 var linesDeleted=0
 var nameFile;
@@ -27,31 +51,33 @@ var Bug=0;
 var Not_Bug=0;
 var Undef=0;
 var GitUser="";
-var no_OAuth=false;
-/*GITHUB AUTENTICATION*/
+var no_OAuth= false;
+var reponame=''
+var a=''
+
 hello.init({
-    github : "e631edc4d7bdba01cd03"
-    },{
+  github : "306dc38983e65739bb72"
+  },{
       redirect_uri : 'redirect.html',
-      oauth_proxy : 'https://auth-server.herokuapp.com/proxy',
-      scope : 'publish_files',
+      oauth_proxy : "https://auth-server.herokuapp.com/proxy",
+      scope : "publish_files",
 });
 access = hello("github");
 access.login({response_type: 'code'}).then( function(){
-      auth = hello("github").getAuthResponse();
-      token = auth.access_token;
-      console.log (token);
-      hello( "github" ).api( '/me' ).then( function(r){
-        GitUser= r.login;
-      });
-      github = new Github({
-        token: token,
-        auth: "oauth"
-      });
-    }, function( e ){
-      alert('Signin error: ' + e.error.message);
-      no_OAuth=true;
-    });
+  auth = hello("github").getAuthResponse();
+  token = auth.access_token;
+  console.log (token);
+  hello( "github" ).api( '/me' ).then( function(r){
+    GitUser= r.login;
+  });
+  github = new Github({
+    token: token,
+    auth: "oauth"
+  });
+}, function( e ){
+    alert('Signin error: ' + e.error.message);
+    no_OAuth= true;
+});
 
 /*FUNCTIONS*/
 // Obtain some information from messages into the Launchpad 
@@ -63,10 +89,13 @@ function splitMessages(data,index){
   for (var i in lines) {
     words= lines[i].split(" ");
     for (var j in words){
-      if(words[j].match(regExpUrl)!=null){
+      if(words[j].match(regExpUrl)!=null && (i==0 || i==1)){
           gerriturl= words[j];
           splitUrl=gerriturl.split("/");
           numGerrit=splitUrl.pop()
+          /*In case of the comma was in the last word, with the number*/
+          deleteFinalComma= numGerrit.split(',')
+          numGerrit= deleteFinalComma[0]
       }
       else if(words[j]== "commit"){
           //If there are others id commits mentioned in the messages
@@ -104,6 +133,7 @@ function getTicketInfo(data) {
       }
     }
   }
+  $('textarea[name="revision"]').val(GitUser)
 }
 
 // Get review url, the Id of the Review and the Commit ID
@@ -111,11 +141,11 @@ function getMessagesInfo(data){
   console.log(data)
   for (i in data)
   { 
-    //alert(data[i].subject)
-    // If the commit was merged into branch of master in cinder 
-    if(data[i].subject=="Fix merged to cinder (master)")
+    console.log(data[i].subject)
+     var regExpRepo = "Fix merged to "+ OpenStack+".*"
+    // If the commit was merged into branch of master in cinder
+    if(data[i].subject=="Fix merged to "+OpenStack+" (master)")
     {
-      //alert("merged")
       info = splitMessages(data[i].content.toString(),i);
       $("#linkGerrit").html(gerriturl).prop("href", gerriturl);
       $("#idGerrit").html(info[0]);
@@ -123,18 +153,16 @@ function getMessagesInfo(data){
       break;
     }
     // If the commit is going to be merged into branch of master in cinder 
-    else if(data[i].subject=="Fix proposed to cinder (master)")
+    else if(data[i].subject=="Fix proposed to "+OpenStack+" (master)")
     {
-      //alert("proposed")
       info = splitMessages(data[i].content.toString(),i);
       $("#linkGerrit").html(gerriturl).prop("href", gerriturl);
       $("#idGerrit").html(info[0]);
       $("#idCommit").html(info[1]);
     }
     // If the commit was merged into a branch different to master in cinder  
-    else if(data[i].subject.match(/Fix merged to cinder.*/)!=null || data[i].subject.match(/Fix proposed to cinder.*/)!=null)
+    else if(data[i].subject.match(regExpRepo)!=null || data[i].subject.match(regExpRepo)!=null)
     {
-      //alert(3)
       info = splitMessages(data[i].content.toString(),i);
       $("#linkGerrit").html(gerriturl).prop("href", gerriturl);
       $("#idGerrit").html(info[0]);
@@ -202,17 +230,33 @@ function getCommitFiles(data) {
   $("#lines").append("Inserted: "+linesInserted+"<br> Deleted: "+linesDeleted);
 }
 function getSourceCode(data){
-  //alert('Perfecto')
 }
 
 // Inserting the list with numTickets (scroll div)
 function getRandomTickets(data){
-  console.log(data)
+  console.log('the data',data)
+  ticketRight =[]
+  ticketLeft =[]
+  ticketCenter =[]
+  // Put the tickets randomly in the scrollable columns
+  /*for (i=0; i<50; i++){
+    index= Math.floor( Math.random() * data.length )
+    ticketLeft.push(data[index])
+    data.splice(index,1)
+  }
+  for (i=0; i<50; i++){
+    index= Math.floor( Math.random() * data.length )
+    ticketCenter.push(data[index])
+    data.splice(index,1)
+  }
+  ticketRight=data
+  console.log(ticketRight,ticketLeft, ticketCenter)*/
+  
   lengthTickets=lengthTickets+data.length;
   ticketLeft= data.slice(0,data.length/3)
   ticketCenter= data.slice(data.length/3, (2*data.length)/3)
   ticketRight=  data.slice((2*data.length)/3, data.length)
-
+  
   for (i in ticketLeft){
     $("#left").append("<p id="+ticketLeft[i]+" class='ticketlast'> <span>"+ticketLeft[i]+"</span></p>")
   }
@@ -227,7 +271,6 @@ function getRandomTickets(data){
 
 function showRepo(error, repo) {
   if (error) {
-    //repodata.html("<p>Error code: " + error.error + "</p>");
   } else {
     setTimeout(showRepo,5000);
     myrepo.contents('master', '', listFiles);
@@ -236,7 +279,7 @@ function showRepo(error, repo) {
 
 function listFiles(error, contents) {
   filesRepoNew =filesRepo.length
-  console.log(filesRepoNew)
+  //console.log(filesRepoNew)
   if (error) {
   } else {
     filesRepo = [];
@@ -244,14 +287,12 @@ function listFiles(error, contents) {
       filesRepo.push(contents[i].name);
     };
     for (i in tickets){
-      //console.log('mistickets',tickets)
       developers=[]
       for( j in filesRepo){
-        //console.log('filesRepo',filesRepo)
         var num = filesRepo[j].split("_")
         if (tickets[i]==num[0]){
- 	   developers.push(num[1])
-	   $('#'+tickets[i]).html('<a style="color:green" title='+developers+'>'+tickets[i]+'</a>')
+          developers.push(num[1])
+          $('#'+tickets[i]).html('<a style="color:green" title='+developers+'>'+tickets[i]+'</a>')
         }
       }
     }
@@ -262,7 +303,6 @@ function listFiles(error, contents) {
   }
 }
 function showFiles(filesInRepo){
-   $("#myFilesInRepo").html("")
   for(i in filesInRepo){
     $("#myFilesInRepo").append("<li><span class='titleFile'>"+filesInRepo[i]+"</span></li>")
     $("#myFilesInRepo").on("click", ".titleFile",selectFile);
@@ -276,10 +316,8 @@ function seeFile() {
   $('#revisor').addClass('hide');
 
   if (revisorname==undefined){
-      titleTicket = $('#'+numTicket).html().split("_")
       revisorname = GitUser.toUpperCase()
-      $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname},function(data){
-        //jsonObj = JSON.parse(data);
+      $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname, repository: OpenStack},function(data){
         console.log(data)
         $("#readfile").html("<h3><p class='text-uppercase'><strong>Contents:</strong></p></h3>")
         for (i in data){
@@ -289,8 +327,7 @@ function seeFile() {
         
       })
   }else{
-    $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname},function(data){
-        //jsonObj = JSON.parse(data);
+    $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname, repository: OpenStack},function(data){
         console.log(data)
         $("#readfile").html("<h3><p class='text-uppercase'><strong>Contents:</strong></p></h3>")
         for (i in data){
@@ -302,8 +339,7 @@ function seeFile() {
 };
 
 function ticketAnalysed(){
-    
-    //alert(tickets.length)
+  
     if (tickets.length >= 0){
       numTicket=this.id
       numGerrit = undefined;
@@ -326,6 +362,7 @@ function ticketAnalysed(){
       $("#parent").html("");
     }
     $('textarea[name="revision"]').val(GitUser)
+
 };
 function selectFile() {
     var name=(this.innerHTML)
@@ -350,9 +387,8 @@ function selectFile() {
     $("#comentsSaved").val(datos.Comments)
     $("#filesSaved").val(datos.Files)
     $("#commitParentSaved").val(datos.CommitParent)
-    $("input[type='radio'][id="+datos.Classification+"]").attr('checked', true);
-
-
+    $("input[type='radio'][id="+datos.Classification+"]").prop("checked", true)
+    //attr('checked', true);
        
     });
 };
@@ -376,11 +412,8 @@ function writeFile() {
       infoRelevant.KeywordsCommit= $("#kwdCommit").val();
       infoRelevant.Comments= $("#comentsSaved").val();
     
-      var InfoRelevantJSON=JSON.stringify(infoRelevant);
-
-      //InfoRelevantJSON=JSON.stringify(InfoRelevant);
-      console.log(InfoRelevantJSON);
-
+      //var InfoRelevantJSON=JSON.stringify(infoRelevant);
+      var InfoRelevantJSON = JSON.stringify(infoRelevant, undefined, 2);
       myrepo.write('master', filename, InfoRelevantJSON,
       "Updating data", function(err) {
          console.log (err);
@@ -388,75 +421,76 @@ function writeFile() {
       
     }
     clearInputs()
+    $("input[type='radio']").prop('checked', false);
 
 };
 function clearInputs(data){
-      $("#changedata :input").each(function(){
-      $(this).val('');
+     $("#changedata .form-control").each(function(){
+      $(this).val("");
     });
 }
 function draw() {
-        $('#firstclassification').highcharts({
-            chart: {
-                type: 'bar'
-            },
-            title: {
-                text: 'First Classification'
-            },
-            xAxis: {
-                categories: ['Bug', 'No Bug', 'Undefined'],
-                title: {
-                    text: 'Type'
-                }
-            },
-            yAxis: {
-                min: 0,
-                title: {
-                    text: 'percentage (%)'//,
-                    //align: 'high'
-                },
-                labels: {
-                    overflow: 'justify'
-                }
-            },
-            tooltip: {
-                valueSuffix: ' percentage'
-            },
-            plotOptions: {
-                bar: {
-                    dataLabels: {
-                        enabled: true
-                    }
-                }
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
-                x: -40,
-                y: 80,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                shadow: true
-            },
-            credits: {
-                enabled: false
-            },
-            series: [{
-                name: 'Ticket analysed',
-                //data: [3, 31, 45]
-                data: (function () {
-                        data = [];
-                        sum  = Bug+Not_Bug+Undef
-                        data.push(Math.round((Bug*100)/sum));
-                        data.push(Math.round((Not_Bug*100)/sum));
-                        data.push(Math.round((Undef*100)/sum));
-                        return data;
-                    }())
-            }]
-        });
-    }
+  $('#firstclassification').highcharts({
+    chart: {
+      type: 'bar'
+    },
+    title: {
+      text: 'First Classification'
+    },
+    xAxis: {
+      categories: ['Bug', 'No Bug', 'Undefined'],
+      title: {
+        text: 'Type'
+      }
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: 'percentage (%)'//,
+          //align: 'high'
+      },
+      labels: {
+        overflow: 'justify'
+      }
+    },
+    tooltip: {
+      valueSuffix: ' percentage'
+    },
+    plotOptions: {
+      bar: {
+        dataLabels: {
+            enabled: true
+        }
+      }
+    },
+    legend: {
+      layout: 'vertical',
+      align: 'right',
+      verticalAlign: 'top',
+      x: -40,
+      y: 80,
+      floating: true,
+      borderWidth: 1,
+      backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+      shadow: true
+    },
+    credits: {
+      enabled: false
+    },
+    series: [{
+      name: 'Ticket analysed',
+      //data: [3, 31, 45]
+      data: (function () {
+          data = [];
+          sum  = Bug+Not_Bug+Undef
+          data.push(Math.round((Bug*100)/sum));
+          data.push(Math.round((Not_Bug*100)/sum));
+          data.push(Math.round((Undef*100)/sum));
+          return data;
+      }())
+    }]
+  });
+}
 
 
 /* JQUERY */
@@ -468,18 +502,30 @@ $(document).ready(function(){
       return false;
   });
   //Labels
+   $("#labelrepo").click(function(evento){
+    $("#mainContainer").addClass('hide');
+    $("#infoAboutTickets").addClass('hide');
+    $("#modifyContainer").addClass('hide');
+    $("#statisticsContainer").addClass('hide');
+    $("#repositoriesContainer").show()
+    $("#labelanalyse").removeClass("menu-top-active")
+    $("#labelmodify").removeClass("menu-top-active")
+    $("#labelstatistics").removeClass("menu-top-active")
+    $(this).addClass('menu-top-active')
+  })
   $("#labelstatistics").click(function(evento){
-    $("#mainContainer").hide()
-    $("#infoAboutTickets").hide()
+    $("#mainContainer").addClass('hide');
+    $("#infoAboutTickets").addClass('hide');
+    $("#repositoriesContainer").hide()
     $("#modifyContainer").addClass('hide');
     $("#statisticsContainer").removeClass('hide');
-    $("#revisors_name").html("")
-    $("#labelmodify").removeClass("menu-top-active")
     $("#labelanalyse").removeClass("menu-top-active")
+    $("#labelmodify").removeClass("menu-top-active")
+    $("#labelrepo").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
+    $("#revisors_name").html("")
     revisors_name=[]
     for (i in filesRepo){
-        //$("#revisors_name").html("<h3>Revisor's Name</h3>")
         title = filesRepo[i].split("_")[0]
         name = filesRepo[i].split("_")[1]
         if (revisors_name.indexOf(name)<0){
@@ -489,17 +535,13 @@ $(document).ready(function(){
         }
     }  
     $("#revisors_name input[name='revisor']").click(function(){
-      //alert(this.value)
       for (i in filesRepo){
         name = filesRepo[i].split("_")[1]
         if (name==this.value){
           Bug=0;
           Not_Bug=0;
           Undef=0;
-          //alert(filesRepo[i])
-          $.get('/tickets/'+filesRepo[i]+'/statistics/',{title:filesRepo[i]},function(data){
-              //jsonObj = JSON.parse(data);
-              //console.log(data)
+          $.get('/tickets/'+filesRepo[i]+'/statistics/',{title:filesRepo[i], repository: OpenStack},function(data){
               if(data.Classification=="Bug"){
                 Bug++;
               }else if(data.Classification=="Not_Bug"){
@@ -524,86 +566,72 @@ $(document).ready(function(){
     }, 500);
   });
   $("#labelanalyse").click(function(evento){
-    $("#mainContainer").show()
-    $("#infoAboutTickets").show()
-    $("#statisticsContainer").addClass('hide');
-    $("#modifyContainer").addClass('hide');
+    $("#mainContainer").removeClass('hide')
+    $("#infoAboutTickets").removeClass('hide')
+    $("#repositoriesContainer").hide()
     $("#labelmodify").removeClass("menu-top-active")
     $("#labelstatistics").removeClass("menu-top-active")
+    $("#labelrepo").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
+    $("#statisticsContainer").addClass('hide');
+    $("#modifyContainer").addClass('hide');
+
   });
   $("#labelmodify").click(function(evento){
-    $("#mainContainer").hide()
-    $("#infoAboutTickets").hide()
+    $("#mainContainer").addClass('hide');
+    $("#infoAboutTickets").addClass('hide');
+    $("#repositoriesContainer").hide()
     $("#statisticsContainer").addClass('hide');
     $("#modifyContainer").removeClass('hide');
     $("#labelanalyse").removeClass("menu-top-active")
     $("#labelstatistics").removeClass("menu-top-active")
+    $("#labelrepo").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
-  });
-  // Start analizing 100 random tickets. The 100 latest commited
-  $('#start').click(function(event){
-    $.get('/random/', getRandomTickets);
-    $('#click').removeClass('hide');
-    $('#left').removeClass('hide');
-    $('#center').removeClass('hide');
-    $('#right').removeClass('hide');
-    $('#moreInfo').removeClass('hide');
-    $('#analize').addClass('hide');
-    $('#someInfo').addClass('hide');
 
-    if (github.getGist!=undefined){
-      var reponame = 'Prueba';
-      myrepo = github.getRepo('Gemarodri',reponame);
+  });
+  //Choose the repository
+   $('.dashboard-div-wrapper').click(function(event){
+      OpenStack=this.id
+      $('#click').addClass('hide');
+      $('#left').html("").addClass('hide');
+      $('#center').html("").addClass('hide');
+      $('#right').html("").addClass('hide');
+      $('#moreInfo').addClass('hide');
+      $('#analize').removeClass('hide');
+      $('#someInfo').removeClass('hide');
+      $("#labelanalyse").click()
+
+      //If the object github has been defined, when you are been registed with github
+      if (github.getGist!=undefined){
+      reponame = OpenStack;
+      myrepo = github.getRepo(GitUser,reponame);
       myrepo.show(showRepo)
     }
- /*   var token = '3f30be94c7ccf56427d81ce3cdf0bfd5cee1345c';
-      github = new Github({
-        token: token,
-        auth: "oauth"
-      });
-
-      var reponame = 'Prueba';
-      myrepo = github.getRepo('Gemarodri',reponame);
-    
-      myrepo.show(showRepo)
-
-*//*  hello.init({
-      github : "e631edc4d7bdba01cd03"
-    },{
-      redirect_uri : 'redirect.html',
-      oauth_proxy : 'https://auth-server.herokuapp.com/proxy',
-      scope : 'publish_files',
-    });
-    access = hello("github");
-    access.login({response_type: 'code'}).then( function(){
-      auth = hello("github").getAuthResponse();
-      token = auth.access_token;
-      console.log (token);
-      hello( "github" ).api( '/me' ).then( function(r){
-        GitUser= r.login;
-      });      
-      github = new Github({
-        token: token,
-        auth: "oauth"
-      });
-      var reponame = 'Prueba';
-      myrepo = github.getRepo('Gemarodri',reponame);
-      myrepo.show(showRepo)
-    }, function( e ){
-      alert('Signin error: ' + e.error.message);
-      no_OAuth=true;
-    });
-*/
+   })
+  // Start analizing 100 random tickets. The 100 latest commited
+  $('#start').click(function(event){
+    var parameters = { Repository:OpenStack };
+    if(OpenStack==''){
+      alert('Please choose a repository to be analyzed')
+    }else{
+      $.get('/random/', parameters, getRandomTickets);
+      $('#click').removeClass('hide');
+      $('#left').removeClass('hide');
+      $('#center').removeClass('hide');
+      $('#right').removeClass('hide');
+      $('#moreInfo').html("")
+      $('#moreInfo').html(" You are analyzing "+OpenStack.toUpperCase()+ " repository").removeClass('hide');
+      $('#analize').addClass('hide');
+      $('#someInfo').addClass('hide');
+    }
   });
+
   $('#moreTickets').click(function(event){
-        var parameters = { last: lengthTickets };
+        var parameters = { last: lengthTickets, Repository: OpenStack };
         $.get('/random/moreTickets',parameters, getRandomTickets, "json")
     })
   // Show the source Code of the file and hide the gerrit Info
   $("#files").on("click", ".afile",function(){
-    //$('#infoGerrit').addClass('hide');
-    //$('#sourceCode').removeClass('hide');
     nameFile=$(this).text();
     window.open("https://review.openstack.org/#/c/"+numGerrit+"/"+lastPatch+"/"+nameFile);
     var parameters = { idGerrit: numGerrit, lastRevision: lastPatch , file: nameFile};
@@ -664,10 +692,10 @@ $(document).ready(function(){
     {    
       alert("we can't Obtain more information");
       $("#linkGerrit")
-        .html("The Commit is not in Cinder Repository, see the messages for more information.")
+        .html("The Commit is not in"+OpenStack+" Repository, see the messages for more information.")
         .prop("href", webpage);
-        $("#idGerrit").html();
-        $("#idCommit").html(); 
+        $("#idGerrit").html("We can't find the id Commit in this repository");
+        $("#idCommit").html("We can't find the id Commit in this repository"); 
         $("#descCommit").html("Not Found"); 
         $("#files").html("Not Found");
         $("#lines").html("Not Found");  
@@ -682,7 +710,6 @@ $(document).ready(function(){
     }else if(no_OAuth==true){
       alert('You don\'t have authoritation, please sign with github to save data')
     }else{
-
       var infoRelevant = new Object ();
       infoRelevant.Launchpad= webpage;
       infoRelevant.Id= numTicket;
@@ -699,17 +726,19 @@ $(document).ready(function(){
       infoRelevant.KeywordsCommit= $("textarea[name='commit']").val();
       infoRelevant.Comments= $("textarea[name='textarea']").val();
     
-    
       name= $("textarea[name='revision']").val();
       revisorname= name.toUpperCase();
       console.log(infoRelevant);
-      var InfoRelevantJSON=JSON.stringify(infoRelevant);
+      //var InfoRelevantJSON=JSON.stringify(infoRelevant);
+      // indentation level = 2
+      var InfoRelevantJSON = JSON.stringify(infoRelevant, undefined, 2);
 
       //InfoRelevantJSON=JSON.stringify(InfoRelevant);
       console.log(InfoRelevantJSON);
       if (github.getGist!= undefined){
-     	myrepo = github.getRepo('Gemarodri', 'Prueba');
-    
+
+        myrepo = github.getRepo(GitUser, OpenStack);
+
         myrepo.write('master', numTicket+'_'+revisorname,
         InfoRelevantJSON,
         "Updating data"+numTicket, function(err) {
@@ -718,8 +747,12 @@ $(document).ready(function(){
         $('#'+numTicket).css('color', 'green');
       }
     }
-
     $('textarea').val('');
+    $("table a").html("");
+    for (i=1; i<18; i++){
+      $("table td:eq("+i+")").html("");
+      i++;
+     }
   });
   //See info file
   $("#see").click(seeFile);

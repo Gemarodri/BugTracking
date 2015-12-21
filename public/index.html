@@ -1,3 +1,26 @@
+<!--
+/*## Copyright (C) 2015 Libresoft
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##
+## Check some properties of a SCM database.
+##
+## Authors:
+##   Gema Rodriguez <gerope@libresoft.es>
+##
+-->
 <!DOCTYPE html>
 <html>
   <head>
@@ -42,7 +65,8 @@
                 <div class="col-md-12">
                     <div class="navbar-collapse collapse ">
                         <ul id="menu-top" class="nav navbar-nav navbar-right">
-                            <li><a id="labelanalyse"class="menu-top-active">analyze</a></li>
+                            <li><a id="labelrepo" class="menu-top-active">Repositories</a></li>
+                            <li><a id="labelanalyse">analyze</a></li>
                             <li><a id="labelstatistics">statistics</a></li>
                             <li><a id="labelmodify">Modify</a></li>
                         </ul>
@@ -54,7 +78,7 @@
     </section>
     <!--<div class="content-wrapper"> -->
       <div class="container">
-      <div class= "container" id="infoAboutTickets">   
+      <div class= "container hide" id="infoAboutTickets">   
         <div class="row">
           <div class="col-md-6">
               <h1 class="page-head-line">Filling The Blanks </h1>
@@ -84,7 +108,6 @@
                         Click on start button to analyse a random ticket, you can save and see the data.
                     </div>
                     <div id="moreInfo" class="alert alert-success hide">
-                        Click over the num of ticket to fill some fields.
                     </div>
                 </div>
             </div>
@@ -95,7 +118,7 @@
     <!--</div> -->
     <!--FORM END-->
     <!--<div class="content-wrapper"> -->
-      <div class="container" id="mainContainer">
+      <div class="container hide" id="mainContainer">
         <div class="row">
           <div class="col-md-12">
               <h1 class="page-head-line">Data Tables</h1>
@@ -161,16 +184,15 @@
                                   <td id="idCommit"></td>
                                 </tr>
                                 <tr>
-                                  <td>Commit Description</td>
-
+                                  <td>Description</td>
                                   <td id="descCommit"></td>
                                 </tr>      
                                 <tr>
-                                  <td>Files Involved</td>
+                                  <td>Files</td>
                                   <td id="files"></td>
                                 </tr>
                                 <tr>
-                                  <td>Total Lines Involved</td>
+                                  <td>Lines</td>
                                   <td id="lines"></td>
                                 </tr>
                                 <tr>
@@ -226,13 +248,13 @@
                                 </td>
                               </tr>
                               <tr>
-                                <td>Ticket Description</td>
+                                <td>Description</td>
                                 <td id="keyDescription">
                                   <textarea name="description" rows="1" cols="50" placeholder="Keywords in the Description"></textarea>
                                 </td>
                               </tr>      
                               <tr>
-                                <td>Commit Description</td>
+                                <td>Commit</td>
                                 <td id="keyCommit">
                                   <textarea name="commit" rows="1" cols="50" placeholder="Keywords in the Commit"></textarea>
                                 </td>
@@ -293,6 +315,40 @@
       <div id="repoform"/></div>
       <!--</div> -->
       <!-- CONTENT-WRAPPER SECTION END-->
+      <!--CONTENT OF repositories-->
+      <div class="container" id="repositoriesContainer">
+        <div class="row">
+          <div class="col-md-12">
+              <h1 class="page-head-line">Which repository would you like analyze?</h1>
+          </div>
+        </div>
+
+        <div class="row">  
+          <div class="col-md-3 col-sm-3 col-xs-6">
+            <div id="nova" class="dashboard-div-wrapper bk-clr-one">
+                  <h5>Nova</h5>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-6">
+            <div id="cinder" class="dashboard-div-wrapper bk-clr-two">
+                  <h5>Cinder</h5>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-6">
+            <div id="neutron" class="dashboard-div-wrapper bk-clr-three">
+                <h5>Neutron</h5>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-6">
+            <div id="horizon" class="dashboard-div-wrapper bk-clr-five">
+                <h5> Horizon </h5>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+    <!--END CONTENT OF repositories-->
       <!--CONTENT OF statistics-->
       <div class="container hide" id="statisticsContainer">
         <div class="row">
@@ -462,8 +518,6 @@
   
     <!-- FOOTER SECTION END-->
     <!-- JAVASCRIPT AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
-    <!-- Highcharts SCRIPTS 
-    <script src="http://code.highcharts.com/highcharts.js"></script>-->
      <script type='text/javascript', src='/javascripts/highcharts.js'></script> 
     <script type='text/javascript', src='/javascripts/exporting.js'></script>
     <!--BOOTSTRAP SCRIPTS-->

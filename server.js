@@ -1,3 +1,25 @@
+/*## Copyright (C) 2015 Libresoft
+##
+## This program is free software; you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation; either version 3 of the License, or
+## (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+##
+## Check some properties of a SCM database.
+##
+## Authors:
+##   Gema Rodriguez <gerope@libresoft.es>
+##*/
+
 /* SERVER */
 /*
  * Module dependencies
@@ -8,6 +30,8 @@ var express = require('express')
   , http = require('http')
   , json = require('json')
   , bodyParser = require('body-parser')
+  , fs = require('fs')
+  , jsonfile = require('jsonfile')
 
 
 //create the application
@@ -27,7 +51,6 @@ app.get('/', function (req, res) {
 app.get('/ticket/:numticket', function (req, res) {
   //API launchpad
 	var numBug = req.query.idTicket;
-  	//console.log(numBug);
   	request({url: 'https://api.launchpad.net/1.0/bugs/'+numBug,
   	json: true,
 	},function (error, response, body) {
@@ -47,7 +70,6 @@ app.get('/ticket/:numticket', function (req, res) {
 app.get('/ticket/:numTicket/messages/',function (req, res) {
   //API launchpad
 	var numBug = req.query.idTicket;
-  	//console.log(numBug);
   	request({url: 'https://api.launchpad.net/1.0/bugs/'+numBug+'/messages',
   	json: true,
 	},function (error, response, body) {
@@ -128,25 +150,24 @@ app.get('/commit/:numCommit/files',function (req, res) {
 })
 app.get('/ticket/:numTicket/seeData/',function (req,res){
   var numTicket=req.query.ticket
-  console.log(numTicket)
-  request({url: "https://raw.githubusercontent.com/Gemarodri/Prueba/master/"+numTicket,
+  var repo = req.query.repository
+  console.log(repo,numTicket)
+  request({url: "https://raw.githubusercontent.com/Gemarodri/"+repo+"/master/"+numTicket,
   json:true,
   },function (error,response,body){
     if (!error && response.statusCode===200){
-      console.log(body)
-      //body = JSON.parse(body);
       res.send(body);
       }
     })
 })
 app.get('/tickets/:title/statistics/',function (req,res){
   var title=req.query.title
-  request({url: "https://raw.githubusercontent.com/Gemarodri/Prueba/master/"+title,
+  var repo = req.query.repository
+  console.log(repo,title)
+  request({url: "https://raw.githubusercontent.com/Gemarodri/"+repo+"/master/"+title,
   json:true,
   },function (error,response,body){
     if (!error && response.statusCode===200){
-      //console.log(body)
-      //body = JSON.parse(body);
       res.send(body);
       }
     })
@@ -158,7 +179,6 @@ app.get('/sourcecode/', function(req, res, next) {
   var nameFile = req.query.file;
 
   request({url: 'http://review.openstack.org/changes/'+numReview+'/revisions/'+numPatch+'/files/'+nameFile+'/diff',
-    //json: true,
   },function (error, response, body) {
     if (!error && response.statusCode === 200) {
           // Send Json with relevant information from the messages of the idTicket  
@@ -168,10 +188,8 @@ app.get('/sourcecode/', function(req, res, next) {
   })
 });
 app.get('/random/',function(req, res, next) {
-  //var tickets= []
-  request({url: 'https://bugs.launchpad.net/cinder/+bugs?field.searchtext=&orderby=-date_last_updated&search=Search&field.status%3Alist=FIXCOMMITTED&field.status%3Alist=FIXRELEASED&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_commenter=&field.subscriber=&field.structural_subscriber=&field.tag=&field.tags_combinator=ANY&field.has_cve.used=&field.omit_dupes.used=&field.omit_dupes=on&field.affects_me.used=&field.has_patch.used=&field.has_branches.used=&field.has_branches=on&field.has_no_branches.used=&field.has_no_branches=on&field.has_blueprints.used=&field.has_blueprints=on&field.has_no_blueprints.used=&field.has_no_blueprints=on'
-  //,json: true,
-  //https://bugs.launchpad.net/cinder/+bugs?assignee_option=any&amp%3Bfield.affects_me.used=&amp%3Bfield.assignee=&amp%3Bfield.bug_commenter=&amp%3Bfield.bug_reporter=&amp%3Bfield.has_blueprints=on&amp%3Bfield.has_blueprints.used=&amp%3Bfield.has_branches=on&amp%3Bfield.has_branches.used=&amp%3Bfield.has_cve.used=&amp%3Bfield.has_no_blueprints=on&amp%3Bfield.has_no_blueprints.used=&amp%3Bfield.has_no_branches=on&amp%3Bfield.has_no_branches.used=&amp%3Bfield.has_patch.used=&amp%3Bfield.omit_dupes=on&amp%3Bfield.omit_dupes.used=&amp%3Bfield.searchtext=&amp%3Bfield.status%3Alist=FIXCOMMITTED&amp%3Bfield.status%3Alist=FIXRELEASED&amp%3Bfield.structural_subscriber=&amp%3Bfield.subscriber=&amp%3Bfield.tag=&amp%3Bfield.tags_combinator=ANY&amp%3Borderby=-date_last_updated&amp%3Bsearch=Search&amp%3Bmemo=75&amp%3Bstart=75&orderby=-date_last_updated&memo=150&start=150
+ /* var OpenStack= req.query.Repository;
+  request({url: 'https://bugs.launchpad.net/'+OpenStack+'/+bugs?field.searchtext=&orderby=-date_last_updated&search=Search&field.status%3Alist=FIXCOMMITTED&field.status%3Alist=FIXRELEASED&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_commenter=&field.subscriber=&field.structural_subscriber=&field.tag=&field.tags_combinator=ANY&field.has_cve.used=&field.omit_dupes.used=&field.omit_dupes=on&field.affects_me.used=&field.has_patch.used=&field.has_branches.used=&field.has_branches=on&field.has_no_branches.used=&field.has_no_branches=on&field.has_blueprints.used=&field.has_blueprints=on&field.has_no_blueprints.used=&field.has_no_blueprints=on'
   },function (error, response, body) {
     if (!error && response.statusCode === 200) {
 
@@ -194,16 +212,25 @@ app.get('/random/',function(req, res, next) {
             j=j+1;
           }
         }
-        //return (tickets)
         res.send(tickets);
     }
-  })
+  })*/
+  var OpenStack = req.query.Repository; 
+  var file = './public/'+OpenStack+'.json'
+  var tickets = []
+  // Send 150 random tickets 
+  array=jsonfile.readFileSync(file)
+  for (i=0; i<150; i++){
+    index= Math.floor( Math.random() * array.length )
+    tickets.push(array[index])
+    array.splice(index,1)
+   }
+  res.send(tickets)
 })
 app.get('/random/moreTickets',function(req, res, next) {
   var begin = req.query.last;
-  request({url: 'https://bugs.launchpad.net/cinder/+bugs?field.searchtext=&search=Search&field.status%3Alist=FIXCOMMITTED&field.status%3Alist=FIXRELEASED&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_commenter=&field.subscriber=&field.structural_subscriber=&field.tag=&field.tags_combinator=ANY&field.has_cve.used=&field.omit_dupes.used=&field.omit_dupes=on&field.affects_me.used=&field.has_patch.used=&field.has_branches.used=&field.has_branches=on&field.has_no_branches.used=&field.has_no_branches=on&field.has_blueprints.used=&field.has_blueprints=on&field.has_no_blueprints.used=&field.has_no_blueprints=on&orderby=-date_last_updated&memo='+begin+'&start='+begin
-  //,json: true,
-  //https://bugs.launchpad.net/cinder/+bugs?assignee_option=any&amp%3Bfield.affects_me.used=&amp%3Bfield.assignee=&amp%3Bfield.bug_commenter=&amp%3Bfield.bug_reporter=&amp%3Bfield.has_blueprints=on&amp%3Bfield.has_blueprints.used=&amp%3Bfield.has_branches=on&amp%3Bfield.has_branches.used=&amp%3Bfield.has_cve.used=&amp%3Bfield.has_no_blueprints=on&amp%3Bfield.has_no_blueprints.used=&amp%3Bfield.has_no_branches=on&amp%3Bfield.has_no_branches.used=&amp%3Bfield.has_patch.used=&amp%3Bfield.omit_dupes=on&amp%3Bfield.omit_dupes.used=&amp%3Bfield.searchtext=&amp%3Bfield.status%3Alist=FIXCOMMITTED&amp%3Bfield.status%3Alist=FIXRELEASED&amp%3Bfield.structural_subscriber=&amp%3Bfield.subscriber=&amp%3Bfield.tag=&amp%3Bfield.tags_combinator=ANY&amp%3Borderby=-date_last_updated&amp%3Bsearch=Search&amp%3Bmemo=75&amp%3Bstart=75&orderby=-date_last_updated&memo=150&start=150
+  var OpenStack= req.query.Repository;
+  request({url: 'https://bugs.launchpad.net/'+OpenStack+'/+bugs?field.searchtext=&search=Search&field.status%3Alist=FIXCOMMITTED&field.status%3Alist=FIXRELEASED&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_commenter=&field.subscriber=&field.structural_subscriber=&field.tag=&field.tags_combinator=ANY&field.has_cve.used=&field.omit_dupes.used=&field.omit_dupes=on&field.affects_me.used=&field.has_patch.used=&field.has_branches.used=&field.has_branches=on&field.has_no_branches.used=&field.has_no_branches=on&field.has_blueprints.used=&field.has_blueprints=on&field.has_no_blueprints.used=&field.has_no_blueprints=on&orderby=-date_last_updated&memo='+begin+'&start='+begin
   },function (error, response, body) {
     if (!error && response.statusCode === 200) {
 
@@ -226,16 +253,12 @@ app.get('/random/moreTickets',function(req, res, next) {
             j=j+1;
           }
         }
+        console.log(tickets)
         res.send(tickets);
     }
   })
 })
 
-server.listen(3000, '193.147.51.75', function() {
-    console.log('Listening on port %d', server.address().port);
+server.listen(3000, function() {
+    console.log('Listening on port %d blabla', server.address().port);
 });
-/*http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello World\n');
-}).listen(8080, '193.147.51.75');
-console.log('Server running at http://APP_PRIVATE_IP_ADDRESS:8080/');*/
