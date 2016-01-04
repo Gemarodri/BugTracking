@@ -151,8 +151,9 @@ app.get('/commit/:numCommit/files',function (req, res) {
 app.get('/ticket/:numTicket/seeData/',function (req,res){
   var numTicket=req.query.ticket
   var repo = req.query.repository
-  console.log(repo,numTicket)
-  request({url: "https://raw.githubusercontent.com/Gemarodri/"+repo+"/master/"+numTicket,
+  var user = req. query.user
+  //console.log(repo,numTicket)
+  request({url: "https://raw.githubusercontent.com/"+user+"/"+repo+"/master/"+numTicket,
   json:true,
   },function (error,response,body){
     if (!error && response.statusCode===200){
@@ -163,8 +164,8 @@ app.get('/ticket/:numTicket/seeData/',function (req,res){
 app.get('/tickets/:title/statistics/',function (req,res){
   var title=req.query.title
   var repo = req.query.repository
-  console.log(repo,title)
-  request({url: "https://raw.githubusercontent.com/Gemarodri/"+repo+"/master/"+title,
+  var user = req.query.user
+  request({url: "https://raw.githubusercontent.com/"+user+"/"+repo+"/master/"+title,
   json:true,
   },function (error,response,body){
     if (!error && response.statusCode===200){
@@ -188,7 +189,7 @@ app.get('/sourcecode/', function(req, res, next) {
   })
 });
 app.get('/random/',function(req, res, next) {
- /* var OpenStack= req.query.Repository;
+  var OpenStack= req.query.Repository;
   request({url: 'https://bugs.launchpad.net/'+OpenStack+'/+bugs?field.searchtext=&orderby=-date_last_updated&search=Search&field.status%3Alist=FIXCOMMITTED&field.status%3Alist=FIXRELEASED&assignee_option=any&field.assignee=&field.bug_reporter=&field.bug_commenter=&field.subscriber=&field.structural_subscriber=&field.tag=&field.tags_combinator=ANY&field.has_cve.used=&field.omit_dupes.used=&field.omit_dupes=on&field.affects_me.used=&field.has_patch.used=&field.has_branches.used=&field.has_branches=on&field.has_no_branches.used=&field.has_no_branches=on&field.has_blueprints.used=&field.has_blueprints=on&field.has_no_blueprints.used=&field.has_no_blueprints=on'
   },function (error, response, body) {
     if (!error && response.statusCode === 200) {
@@ -214,7 +215,7 @@ app.get('/random/',function(req, res, next) {
         }
         res.send(tickets);
     }
-  })*/
+  })/*
   var OpenStack = req.query.Repository; 
   var file = './public/'+OpenStack+'.json'
   var tickets = []
@@ -225,7 +226,7 @@ app.get('/random/',function(req, res, next) {
     tickets.push(array[index])
     array.splice(index,1)
    }
-  res.send(tickets)
+  res.send(tickets)*/
 })
 app.get('/random/moreTickets',function(req, res, next) {
   var begin = req.query.last;

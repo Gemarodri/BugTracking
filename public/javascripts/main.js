@@ -138,10 +138,10 @@ function getTicketInfo(data) {
 
 // Get review url, the Id of the Review and the Commit ID
 function getMessagesInfo(data){
-  console.log(data)
+  //console.log(data)
   for (i in data)
   { 
-    console.log(data[i].subject)
+    console.log('titulo comentario',data[i].subject)
      var regExpRepo = "Fix merged to "+ OpenStack+".*"
     // If the commit was merged into branch of master in cinder
     if(data[i].subject=="Fix merged to "+OpenStack+" (master)")
@@ -298,6 +298,7 @@ function listFiles(error, contents) {
     }
     if (filesRepoNew!=filesRepo.length || filesRepo.length==0){
       $("#miFilesInRepo").empty()
+      $("#bugReports").empty()
       showFiles(filesRepo)
     }
   }
@@ -316,8 +317,8 @@ function seeFile() {
   $('#revisor').addClass('hide');
 
   if (revisorname==undefined){
-      revisorname = GitUser.toUpperCase()
-      $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname, repository: OpenStack},function(data){
+      revisorname = GitUser.toUpperCase().trim()
+      $.get('/ticket/'+numTicket+'/seeData/',{ticket:numTicket+'_'+revisorname, repository: OpenStack, user:GitUser},function(data){
         console.log(data)
         $("#readfile").html("<h3><p class='text-uppercase'><strong>Contents:</strong></p></h3>")
         for (i in data){
@@ -511,6 +512,7 @@ $(document).ready(function(){
     $("#labelanalyse").removeClass("menu-top-active")
     $("#labelmodify").removeClass("menu-top-active")
     $("#labelstatistics").removeClass("menu-top-active")
+    $("#labelprevcommit").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
   })
   $("#labelstatistics").click(function(evento){
@@ -522,28 +524,34 @@ $(document).ready(function(){
     $("#labelanalyse").removeClass("menu-top-active")
     $("#labelmodify").removeClass("menu-top-active")
     $("#labelrepo").removeClass("menu-top-active")
+    $("#labelprevcommit").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
     $("#revisors_name").html("")
     revisors_name=[]
+    //console.log('files in repo',filesRepo)
     for (i in filesRepo){
         title = filesRepo[i].split("_")[0]
         name = filesRepo[i].split("_")[1]
-        if (revisors_name.indexOf(name)<0){
+        if (revisors_name.indexOf(name.trim())<0){
           revisors_name.push(name)
-           $("#revisors_name").append("<input type='radio' name='revisor' value="+name+" >&nbsp" +name + "&nbsp;&nbsp"  )
+           $("#revisors_name").append("<input type='radio' name='revisor' value="+name.split(" ").join("")+" >&nbsp" +name + "&nbsp;&nbsp"  )
 
         }
-    }  
+    } 
     $("#revisors_name input[name='revisor']").click(function(){
       for (i in filesRepo){
         name = filesRepo[i].split("_")[1]
-        if (name==this.value){
+        //console.log('the name',filesRepo[i])
+        if (name.split(" ").join("")==this.value ){
           Bug=0;
           Not_Bug=0;
           Undef=0;
-          $.get('/tickets/'+filesRepo[i]+'/statistics/',{title:filesRepo[i], repository: OpenStack},function(data){
+          //console.log('es el titulo',filesRepo[i],i)
+          $.get('/tickets/'+filesRepo[i]+'/statistics/',{title:filesRepo[i], repository: OpenStack, user:GitUser},function(data){
+              //console.log(i, data.Classification)
               if(data.Classification=="Bug"){
                 Bug++;
+
               }else if(data.Classification=="Not_Bug"){
                 Not_Bug++;
               }else{
@@ -572,6 +580,7 @@ $(document).ready(function(){
     $("#labelmodify").removeClass("menu-top-active")
     $("#labelstatistics").removeClass("menu-top-active")
     $("#labelrepo").removeClass("menu-top-active")
+    $("#labelprevcommit").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
     $("#statisticsContainer").addClass('hide');
     $("#modifyContainer").addClass('hide');
@@ -586,9 +595,36 @@ $(document).ready(function(){
     $("#labelanalyse").removeClass("menu-top-active")
     $("#labelstatistics").removeClass("menu-top-active")
     $("#labelrepo").removeClass("menu-top-active")
+    $("#labelprevcommit").removeClass("menu-top-active")
     $(this).addClass('menu-top-active')
 
   });
+  $("#labelprevcommit").click(function(evento){
+    $("#mainContainer").addClass('hide');
+    $("#infoAboutTickets").addClass('hide');
+    $("#modifyContainer").addClass('hide');
+    $("#repositoriesContainer").hide()
+    $("#statisticsContainer").addClass('hide');
+    $("#prevCommit").removeClass('hide');
+    $("#labelmodify").removeClass("menu-top-active")
+    $("#labelanalyse").removeClass("menu-top-active")
+    $("#labelstatistics").removeClass("menu-top-active")
+    $("#labelrepo").removeClass("menu-top-active")
+    $(this).addClass('menu-top-active')
+    for(i in filesRepo){
+    //for (j in filesRepo){
+      console.log(filesRepo[i])//filesRepo[i].innerHTML
+      myrepo.read('master', filesRepo[i], function(err, data) {
+      datos= JSON.parse(data)
+        if(datos.Classification=='Bug'){
+          console.log(filesRepo[i])
+          $("#bugReports").append("<li><span class='titleFile'>"+filesRepo[i]+"</span></li>")
+          $("#bugReports").on("click", ".titleFile",selectFile);
+        }  
+      });
+    //}
+  }
+  })
   //Choose the repository
    $('.dashboard-div-wrapper').click(function(event){
       OpenStack=this.id
@@ -728,7 +764,8 @@ $(document).ready(function(){
     
       name= $("textarea[name='revision']").val();
       revisorname= name.toUpperCase();
-      console.log(infoRelevant);
+      revisorname= revisorname.trim();
+      //console.log(infoRelevant);
       //var InfoRelevantJSON=JSON.stringify(infoRelevant);
       // indentation level = 2
       var InfoRelevantJSON = JSON.stringify(infoRelevant, undefined, 2);
@@ -760,4 +797,7 @@ $(document).ready(function(){
   $("#draw").click(draw);
 
   $("#write").click(writeFile);
+
+
 });
+
